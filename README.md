@@ -2,6 +2,17 @@
 
 **Rewrite AI-generated text so it sounds like a real person wrote it. Free models, 11 tones, a built-in AI detector, one-click Vercel deploy.**
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Faziztarous1999%2Fai-humanizer&project-name=ai-humanizer&repository-name=ai-humanizer)
+
+![Humanize: AI text scored 100% AI rewritten to 8% AI](docs/demo.png)
+
+<details>
+<summary>Click any word for synonyms, or select a phrase for AI rewordings</summary>
+
+![Synonym popover](docs/demo-synonyms.png)
+
+</details>
+
 - **11 tones:** natural, professional, casual, email, angry, friendly, academic, persuasive, storytelling, simple, witty
 - **Free models:** Gemini, Groq and OpenRouter, with automatic fallback when a model is busy or retired. You can add any model or OpenAI-compatible provider.
 - **AI detector:** gives a score, flags sentences, and offers an optional AI second opinion. Supports English and French.
@@ -28,8 +39,8 @@ Open http://localhost:5173, click **Models & keys** and paste a free key:
 
 ## Deploy to Vercel
 
-1. Push this folder to a GitHub repo.
-2. In Vercel, choose **Add New → Project** and import the repo. The Vite preset is detected automatically, and `api/*.js` becomes serverless functions.
+1. Click **Deploy with Vercel** above, or in Vercel choose **Add New → Project** and import this repo. The Vite preset is detected automatically, and `api/*.js` becomes serverless functions.
+2. No build settings are needed. Vercel runs `npm run build` and serves `dist/`.
 3. Optional: add environment variables (see `.env.example`):
    - `GEMINI_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY`: with these set, visitors can use the app without their own key.
    - `ACCESS_CODE`: the server keys then only work for people who enter this code. **Set this on a public deployment**, or anyone can use up your free quota.

@@ -3,6 +3,21 @@ import { createPortal } from "react-dom";
 import { isAiPhrase } from "../lib/detector.js";
 import { CloseIcon, CopyIcon, SparkleIcon } from "./icons.jsx";
 
+// Synonyms from the free Datamuse dictionary (English only). Its "means like"
+// results tag true synonyms with "syn"; those come first, and loosely related
+// words of the same part of speech only fill in when there are few synonyms.
+async function lookupSynonyms(word) {
+  const data = await fetch(`https://api.datamuse.com/words?ml=${encodeURIComponent(word)}&md=p&max=30`)
+    .then((r) => (r.ok ? r.json() : []))
+    .catch(() => []);
+  const usable = data.filter((d) => d.word.length > 2);
+  const pos = (d) => (d.tags || []).find((t) => ["n", "v", "adj", "adv"].includes(t));
+  const syn = usable.filter((d) => d.tags?.includes("syn"));
+  const main = pos(syn[0] || usable[0] || {});
+  const related = syn.length >= 4 ? [] : usable.filter((d) => !syn.includes(d) && (!main || pos(d) === main)).slice(0, 6 - syn.length);
+  return [...new Set([...syn, ...related].map((d) => d.word))];
+}
+
 // Synonyms for a clicked word (free Datamuse dictionary, English) and
 // context-aware AI alternatives for a word or a selected phrase.
 export function AlternativesPopover({ target, text, aiReady, getAlternatives, onReplace, onClose }) {
@@ -39,12 +54,10 @@ export function AlternativesPopover({ target, text, aiReady, getAlternatives, on
     // Deferred so React's dev double-mount doesn't send two AI requests.
     const timer = setTimeout(() => {
       if (mode === "phrase") return loadAi();
-      fetch(`https://api.datamuse.com/words?ml=${encodeURIComponent(phrase.toLowerCase())}&max=14`)
-        .then((r) => (r.ok ? r.json() : []))
-        .catch(() => [])
-        .then((data) => {
+      lookupSynonyms(phrase.toLowerCase())
+        .then((words) => {
           if (!alive.current) return;
-          const items = [...new Set(data.map((d) => d.word))]
+          const items = words
             .filter((w) => w.split(" ").length <= 2 && w.toLowerCase() !== phrase.toLowerCase() && !isAiPhrase(w))
             .slice(0, 10);
           setDict({ state: "done", items });
